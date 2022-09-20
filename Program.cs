@@ -109,7 +109,7 @@ namespace LoopBack
             {
                 for (Int32 i = 0; i < ftdiDeviceCount; i++)
                 {
-                    if (ftdiDeviceList[i].Type == FTDI.FT_DEVICE.FT_DEVICE_232R)
+                    if (ftdiDeviceList[i].Type == FTDI.FT_DEVICE.FT_DEVICE_X_SERIES)
                     {
                         oIdx = i;
                     }
@@ -147,7 +147,7 @@ namespace LoopBack
             myFtdiDevice.SetRTS(false);
 
             // Set up device data parameters
-            uint baud = 230400;
+            uint baud = 115200;
             if (ConfigurationManager.AppSettings["BaudRate"] != null)
             {
                 baud = UInt32.Parse(ConfigurationManager.AppSettings["BaudRate"]);
@@ -199,8 +199,7 @@ namespace LoopBack
             prompt();
 
             myFtdiDevice.SetDTR(true);
-            Thread.Sleep(100);
-            myFtdiDevice.SetDTR(false);
+            myFtdiDevice.SetRTS(true);
 
             while (true)
             {
@@ -265,7 +264,10 @@ namespace LoopBack
                         }
                     }
                     buf[0] = (byte)(cki.KeyChar & 0xff);
-                  
+
+                    if (cki.Key == ConsoleKey.Enter)
+                        buf[0] = (byte)'\n';
+
                     numBytes = 0;
                     ftStatus = myFtdiDevice.Write(buf, 1, ref numBytes);
                     if (ftStatus != FTDI.FT_STATUS.FT_OK)
